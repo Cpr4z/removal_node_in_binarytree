@@ -81,167 +81,44 @@ BinaryTree::Node* BinaryTree::findNodeByData(int finddata)
     return nullptr;//если элемента нет, то возвращаем nullptr
 }
 // удаление элемента
+BinaryTree::Node* BinaryTree::treeMax(Node* x) {
+	while (x->rightChild != nullptr)
+		x = x->rightChild;
+	return x;
+}
+BinaryTree::Node* BinaryTree::treeMin(Node* y) {
+	while (y->leftChild != nullptr)
+		y = y->leftChild;
+	return y;
+}
+void BinaryTree::TransPlant(Node* U, Node* V) {
+	if (U->parent == nullptr) {
+		root = V;
+	}
+	else if (U == U->parent->leftChild){
+		U->parent->leftChild = V;
+	}
+	else {
+		U->parent->rightChild = V;
+	}
+	if (V != nullptr)
+		V->parent = U->parent;
+}
 void BinaryTree::delInt(int deldata)
 {
-    Node* curr = findNodeByData(deldata);//находим элемент в дереве, и назначаем его текущим
-
-    if (curr) {
-        Node* tmpLeft = nullptr;
-        Node* tmpRight = nullptr;
-        Node* p = curr->parent;// указатель на родительский узел удаляемого узла
-
-        if (!curr->leftChild && !curr->rightChild)//если удаляемый узел лист
-        {
-            delete curr;
-        }
-
-        else if (curr->leftChild && !curr->rightChild)//если есть только левый дочерний узел
-        {
-            if (curr->parent == nullptr)//если удаляемый элемент корень
-            {
-                Node* max = curr->leftChild; // для поиска максимума в левом поддереве
-                while (max->rightChild)//пока существует правый элемент,идем по правой части дерева
-                {
-                    if (max->rightChild != nullptr)//если правый элемент не равен nullptr, то идем по правой части дерева
-                    {
-                        max = max->rightChild;
-                        continue;
-                    }
-                }
-
-                curr->data = max->data;// назначаем удаляемому узлу max data, т.е. значение того узла, который должен быть на его месте
-
-                // теперь нужно удалить узел max (т.к. его значение перешло в curr) и сбросить указатель rightChild для его родителя
-                if (max->leftChild == nullptr)// если у  maxchild нет левого ребенка
-                {
-                    Node* p2 = max->parent;
-                    p2->rightChild = nullptr;//зануляем правого ребенка, у родителя 
-                    delete max;
-                }
-                else
-                {
-                    Node* p2 = max->parent;
-                   // p2->leftChild = nullptr;
-                    p2->rightChild = max->leftChild;
-                    (max->leftChild)->parent = p2;
-                    delete max;
-                }
-            }
-
-            //случай если удаляемый элемент не корень, у него есть левый ребенок, но нет правого ребенка
-            else if (curr->parent != nullptr && curr->leftChild != nullptr && curr->rightChild == nullptr)
-            {
-                tmpLeft = curr->leftChild;//сохраняем значение левого ребенка текущего элемента
-                if (p->rightChild->data == deldata) //удаляемый узел является правым ребенком у своего родителя
-                {
-                    p->rightChild == tmpLeft;//присваиваем правому ребенку родителя удаляемой вершины левого ребенка   
-                    tmpLeft->parent = p;//переназначаем родителя правого левого элемента 
-                    delete curr;
-                }
-                if (p->leftChild->data == deldata) //удаляемый узел является левым ребенком у своего родителя
-                {
-                    p->leftChild == tmpLeft;
-                    tmpLeft->parent = p;
-                    delete curr;
-                }       
-            }
-            else if (curr->parent != nullptr && curr->leftChild == nullptr && curr->rightChild != nullptr)
-            {
-                tmpRight = curr->rightChild;
-                if (p->rightChild->data == deldata)//удаляемый узел является правым ребенком своего родителя
-                {
-                    p->rightChild = tmpRight;
-                    tmpRight->parent = p;
-                    delete curr;
-                }
-                if(p->leftChild->data=deldata)//удаляемый узел является левым ребенок своего родителя
-                {
-                    p->leftChild = tmpRight;
-                    tmpRight->parent = p;
-                    delete curr;
-                }
-                else if (curr->parent != nullptr && curr->leftChild != nullptr && curr->rightChild != nullptr)//если элемент не является корневым и у него есть 2 ребенка
-                {
-                    tmpLeft = curr->leftChild;
-                    tmpRight = curr->rightChild;
-                    if (p->leftChild->data == deldata&&p->rightChild==nullptr)//если в правом поддереве нет элементе нет детей
-                    {
-                        p->rightChild = tmpRight;
-                        p->leftChild = tmpLeft;
-                        tmpRight->parent = p;
-                        tmpRight->parent = p;
-                        delete curr;
-                    }
-                    else if (p->leftChild->data == deldata && p->rightChild != nullptr)//если удаляемое значение принадлжеит к левому дереву и в правом дереве есть ребенок
-                    {
-                        p->leftChild = tmpRight;
-
-                        if (p->rightChild->data< tmpRight->data) //если правый ребенок больше чем правый у удаляемой вершины, то ничего не делаем
-                        {
-                            p->rightChild = tmpRight;
-                            tmpRight->parent = p;
-                            delete curr;
-                        }
-                    }
-                    else if (p->rightChild->data == deldata && p->leftChild != nullptr) 
-                    {
-                        p->rightChild = tmpRight;
-                        if (p->leftChild->data > tmpLeft->data) 
-                        {
-                            p->leftChild = tmpLeft;
-                            tmpLeft->parent = p;
-                            delete curr;
-                        }
-
-                    }
-                }
-
-            }
-        }
-        else if (!curr->leftChild && curr->rightChild)//если есть только правый дочерний узел
-        {
-            if (curr->parent == nullptr)//если удаляемый элемент корень
-            {
-                tmpRight = curr->rightChild;
-                root = tmpRight;
-                root->parent = nullptr;
-                delete curr;
-            }
-            //если удаляемый элемент не корень
-            tmpRight = curr->rightChild;
-            p->rightChild = curr->rightChild;
-            tmpRight->parent = p;
-            delete curr;
-        }
-
-        else //если есть оба дочерних узла у удаляемого
-        {
-            Node* max = curr->leftChild; // для поиска максимума в левом поддереве
-            while (max->rightChild)
-            {
-                if (max->rightChild != nullptr)
-                {
-                    max = max->rightChild;
-                    continue;
-                }
-            }
-            curr->data = max->data;// назначаем удаляемому узлу max data, т.е. значение того узла, который должен быть на его месте
-
-            // теперь нужно удалить узел max (т.к. его значение перешло в curr) и сбросить указатель rightChild для его родителя
-            if (max->leftChild == nullptr)
-            {
-                Node* p2 = max->parent;
-                p2->rightChild = nullptr;
-                delete max;
-            }
-            else
-            {
-                Node* p2 = max->parent;
-                p2->leftChild = nullptr;
-                p2->rightChild = max->leftChild;
-                (max->leftChild)->parent = p2;
-                delete max;
-            }
-        }
-    }
+	Node* curr = findNodeByData(deldata);//находим элемент в дереве, и назначаем его текущим
+	if (curr->leftChild == nullptr)
+		TransPlant(curr, curr->rightChild);
+	else if (curr->rightChild == nullptr)
+		TransPlant(curr, curr->leftChild);
+	else {
+		Node* y = treeMin(curr->rightChild);
+		if (y->parent != curr) {
+			y->rightChild = curr->rightChild;
+			y->rightChild->parent = y;
+		}
+		TransPlant(curr, y);
+		y->leftChild = curr->leftChild;
+		y->leftChild->parent = y;
+	}
 }

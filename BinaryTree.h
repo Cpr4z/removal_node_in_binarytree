@@ -13,6 +13,7 @@ public:
 	void print();
 	void delInt(int deldata);
 	
+	
 private:
 	struct Node {
 		Node(int _data,Node* _parent=0): 
@@ -34,6 +35,9 @@ private:
 		int data;
 	};
 	Node* findNodeByData(int finddata);
+	void TransPlant(Node* U, Node* V);
+	Node* treeMax(Node* x);
+	Node* treeMin(Node* y);
 	Node* root;
 
 };

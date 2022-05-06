@@ -92,13 +92,13 @@ BinaryTree::Node* BinaryTree::treeMin(Node* y) {
 	return y;
 }
 void BinaryTree::TransPlant(Node* U, Node* V) {
-	if (U->parent == nullptr) {
+	if (U->parent == nullptr) {//если мы удаляем корень, тогда мы назначаем перемещаемый элемент корнем дерева
 		root = V;
 	}
-	else if (U == U->parent->leftChild){
+	else if (U == U->parent->leftChild){//если удаляемая вершина является левым ребенком 
 		U->parent->leftChild = V;
 	}
-	else {
+	else {//если удаляемая вершина является правым ребенком своего родителя
 		U->parent->rightChild = V;
 	}
 	if (V != nullptr)
@@ -106,19 +106,21 @@ void BinaryTree::TransPlant(Node* U, Node* V) {
 }
 void BinaryTree::delInt(int deldata)
 {
-	Node* curr = findNodeByData(deldata);//находим элемент в дереве, и назначаем его текущим
+	Node* curr = findNodeByData(deldata);
 	if (curr->leftChild == nullptr)
 		TransPlant(curr, curr->rightChild);
 	else if (curr->rightChild == nullptr)
 		TransPlant(curr, curr->leftChild);
 	else {
-		Node* y = treeMin(curr->rightChild);
-		if (y->parent != curr) {
-			y->rightChild = curr->rightChild;
-			y->rightChild->parent = y;
+		if (curr == curr->parent->leftChild) {
+			Node* x = treeMax(curr->rightChild);
+			x->parent->rightChild = nullptr;
+			TransPlant(curr, x);
 		}
-		TransPlant(curr, y);
-		y->leftChild = curr->leftChild;
-		y->leftChild->parent = y;
+		else if (curr == curr->parent->rightChild) {
+			Node* y = treeMin(curr->leftChild);
+			y->parent->rightChild == nullptr;
+			TransPlant(curr, y);
+		}
 	}
 }

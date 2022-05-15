@@ -81,46 +81,83 @@ BinaryTree::Node* BinaryTree::findNodeByData(int finddata)
     return nullptr;//если элемента нет, то возвращаем nullptr
 }
 // удаление элемента
-BinaryTree::Node* BinaryTree::treeMax(Node* x) {
-	while (x->rightChild != nullptr)
-		x = x->rightChild;
-	return x;
+void BinaryTree::delInt(int deldata) {
+    Node* foundForDel = findNodeByData(deldata);
+    if (foundForDel == nullptr)
+        return; // такого целого числа нет в дереве
+    // такое целое есть
+    if (isLeaf(foundForDel)) { // если это лист, просто удалим его
+       delLeaf(foundForDel);
+    } else {
+        // если не лист, то удаление сложнее
+        if(foundForDel->leftChild == nullptr || foundForDel->rightChild == nullptr) {
+            // случай, когда у узла только один дочерний
+            delNodeWithOneChild(foundForDel);
+        } else {
+            // ищем правый элемент левого поддерева
+            Node* mostright = foundForDel->leftChild;
+            while(mostright->rightChild != nullptr)
+                mostright = mostright->rightChild;
+              
+            // записали данные из правого вместо данных в удаляемом узле  
+            foundForDel->data = mostright->data; 
+            
+            // удалили правый элемент (он может содержать только левый узел)
+            if(mostright->leftChild != nullptr)
+                delNodeWithOneChild(mostright);
+            else
+                delLeaf(mostright);
+        }
+    }
 }
-BinaryTree::Node* BinaryTree::treeMin(Node* y) {
-	while (y->leftChild != nullptr)
-		y = y->leftChild;
-	return y;
+
+// установка для родителя узла child нового дочернего
+// узла newChild вместо child (для дальнейшего удаления узла)
+void BinaryTree::setNewChild(Node* child, Node* newChild = nullptr) {
+    Node* parent = child->parent;
+    if(parent != nullptr) {
+        if(parent->leftChild == child) {
+            parent->leftChild = newChild;
+        } else {
+            parent->rightChild = newChild;
+        }
+    }    
 }
-void BinaryTree::TransPlant(Node* U, Node* V) {
-	if (U->parent == nullptr) {//если мы удаляем корень, тогда мы назначаем перемещаемый элемент корнем дерева
-		root = V;
-	}
-	else if (U == U->parent->leftChild){//если удаляемая вершина является левым ребенком 
-		U->parent->leftChild = V;
-	}
-	else {//если удаляемая вершина является правым ребенком своего родителя
-		U->parent->rightChild = V;
-	}
-	if (V != nullptr)
-		V->parent = U->parent;
+
+// удалить узел с одним дочерним узлом из дерева
+void BinaryTree::delNodeWithOneChild(Node* delNode) {
+    if(delNode->leftChild != nullptr) {
+        // если имеет левый узел
+        if(isRoot(delNode)) {
+            root = delNode->leftChild;
+        } else {
+            setNewChild(delNode, delNode->leftChild);                   
+        }
+        delNode->leftChild->parent = delNode->parent;
+        delNode->leftChild = nullptr;                
+    } else {
+        // если правый узел
+        if(isRoot(delNode)) {
+            root = delNode->rightChild;
+        } else {
+            setNewChild(delNode, delNode->rightChild);
+        }
+        delNode->rightChild->parent = delNode->parent;
+        delNode->rightChild = nullptr;
+    }
+    // удаляем узел
+    delete delNode;    
 }
-void BinaryTree::delInt(int deldata)
-{
-	Node* curr = findNodeByData(deldata);
-	if (curr->leftChild == nullptr)
-		TransPlant(curr, curr->rightChild);
-	else if (curr->rightChild == nullptr)
-		TransPlant(curr, curr->leftChild);
-	else {
-		if (curr == curr->parent->leftChild) {
-			Node* x = treeMax(curr->rightChild);
-			x->parent->rightChild = nullptr;
-			TransPlant(curr, x);
-		}
-		else if (curr == curr->parent->rightChild) {
-			Node* y = treeMin(curr->leftChild);
-			y->parent->rightChild == nullptr;
-			TransPlant(curr, y);
-		}
-	}
+// удалить лист из дерева
+void BinaryTree::delLeaf(Node* leaf){
+    if(isRoot(leaf)) { // случай, когда в дереве всего один корневой узел
+        // забываем корень
+        root = nullptr;
+    }
+    else {
+        // обнуляем указатель на удаляемый узел у родителя
+        setNewChild(leaf);
+    }
+    // удаляем листовой узел
+    delete leaf;    
 }

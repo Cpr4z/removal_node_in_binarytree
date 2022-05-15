@@ -34,6 +34,11 @@ private:
 		Node* parent;
 		int data;
 	};
+	void BinaryTree::setNewChild(Node* child, Node* newChild = nullptr);
+	void BinaryTree::delNodeWithOneChild(Node* delNode);
+	void BinaryTree::delLeaf(Node* leaf);
+	bool BinaryTree::isLeaf(Node* check);
+	bool BinaryTree::isRoot(Node* check) ;
 	Node* findNodeByData(int finddata);
 	void TransPlant(Node* U, Node* V);
 	Node* treeMax(Node* x);
